@@ -54,6 +54,20 @@ record_statuses = db.Table('record_statuses', metadata, autoload=True, autoload_
 app.config['State'] = None
 app.config['State_Admin'] = None
 
+@app.route('/services')
+def Services():
+    # Establishing connection
+    connection = engine.connect()
+
+    query = connection.execute(db.select([services])).fetchall()
+    result = {}
+
+    for num, i in enumerate(query):
+        result[str(num)] = {
+            "id": f"{i[0]}","service": f"{i[1]}",
+                            "Description": f"{i[2]}", "image": f"{i[3]}"}
+
+    return result
 # For routes in flask app
 from Flaskapp import routes
 
