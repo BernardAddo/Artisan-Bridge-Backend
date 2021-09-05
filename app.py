@@ -57,7 +57,6 @@ record_statuses = db.Table('record_statuses', metadata, autoload=True, autoload_
 # variables
 app.config['State'] = None
 app.config['State_Admin'] = None
-
 @app.before_request
 def before_request():
 
@@ -422,7 +421,29 @@ def Services():
     for num, i in enumerate(query):
         result[str(num)] = {
             "id": f"{i[0]}","service": f"{i[1]}",
-                            "Description": f"{i[2]}", "image": f"{i[3]}"}
+                            "description": f"{i[2]}", "image": f"{i[3]}"}
+
+    return result
+
+
+
+@app.route('/service/<int:service_id>')
+def get_service(service_id):
+      # Establishing connection
+    connection = engine.connect()
+    query = connection.execute(
+        db.select([services.columns.service_id, services.columns.skill]).where(services.columns.service_id==service_id)).fetchall()
+
+    result = {}
+    for i in query:
+        artisan_group = connection.execute(db.select([artisans.columns.artisan_id, artisans.columns.first_name,
+                                                      artisans.columns.address,
+                                                      artisans.columns.rating,
+                                                      artisans.columns.profile_image_path]).where(artisans.columns.service_id == i[0])).fetchall()
+
+        artisan_group_list = [{"id": f"{i[0]}", "Name": f"{i[1]}", "Address": f"{i[2]}",
+                               "rating": f"{i[3]}", "Path": f"{i[4]}"} for i in artisan_group]
+        result[i[1]] = artisan_group_list
 
     return result
 
@@ -585,7 +606,7 @@ def find_artisan_id(artisan_id):
             "description": f"{query[0][7]}",
             "Path": f"{query[0][8]}", "Expertise": f"{query[0][9]}"}
 
-# For routes in flask app
+
 from Flaskapp import routes
 
 if __name__ == "__main__":
