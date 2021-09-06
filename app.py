@@ -18,6 +18,32 @@ from flask import request, session, Response
 import json
 from wtforms_json import from_json
 
+def admin_login_required(original):
+
+    def wrapper():
+        if app.config['State_Admin'] == True:
+            return original()
+        else:
+            return {"Info":"Login required, Administrator"}        
+    
+    wrapper.__name__ = original.__name__
+    # The code here will differentiate between customer and admin for security
+
+    return wrapper
+
+# login
+def login_requireds(original):
+
+    def wrapper():
+        
+        if app.config['State'] == True:
+            return original()
+        else:
+            return {"Info":"Login required"}        
+    
+    wrapper.__name__ = original.__name__
+    return wrapper
+
 # To allow to json to form object passing
 import wtforms_json
 wtforms_json.init()
